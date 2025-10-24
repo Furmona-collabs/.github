@@ -1,0 +1,32 @@
+name: Furmona-VPS
+image: mcr.microsoft.com/devcontainers/base:ubuntu
+
+# Yêu cầu tài nguyên (GitHub sẽ cấp nếu policy + spending limit cho phép)
+hostRequirements:
+  cpus: 8
+  memory: "16gb"
+  storage: "64gb"
+
+# Cài sẵn SSH và tạo user
+onCreateCommand:
+  - apt update && apt install -y openssh-server sudo
+  - useradd -m blender && echo "blender:123456Hi" | chpasswd
+  - usermod -aG sudo blender
+  - mkdir -p /var/run/sshd
+  - echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+  - echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+  - service ssh restart
+
+# Chạy lại mỗi lần Codespace mở
+postStartCommand:
+  - service ssh restart
+  - echo "SSH ready on port 22"
+
+# Mở cổng ra ngoài
+forwardPorts:
+  - 22
+
+# Đảm bảo cổng SSH có thể truy cập công khai
+portsAttributes:
+  "22":
+    visibility: public
