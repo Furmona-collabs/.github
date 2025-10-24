@@ -1,32 +1,29 @@
 name: Furmona-VPS
 image: mcr.microsoft.com/devcontainers/base:ubuntu
 
-# Yêu cầu tài nguyên (GitHub sẽ cấp nếu policy + spending limit cho phép)
 hostRequirements:
   cpus: 8
-  memory: "16gb"
+  memory: "32gb"
   storage: "64gb"
 
-# Cài sẵn SSH và tạo user
+features:
+  ghcr.io/devcontainers/features/docker-in-docker: 2
+  ghcr.io/devcontainers/features/sshd: 1
+
 onCreateCommand:
-  - apt update && apt install -y openssh-server sudo
-  - useradd -m blender && echo "blender:123456Hi" | chpasswd
-  - usermod -aG sudo blender
-  - mkdir -p /var/run/sshd
-  - echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-  - echo "PermitRootLogin no" >> /etc/ssh/sshd_config
-  - service ssh restart
+  - apt update && apt install -y nginx python3 python3-pip net-tools
+  - echo "Codespace ready with 8-core and 32GB RAM"
 
-# Chạy lại mỗi lần Codespace mở
 postStartCommand:
-  - service ssh restart
-  - echo "SSH ready on port 22"
+  - service nginx start
+  - service ssh start
 
-# Mở cổng ra ngoài
 forwardPorts:
   - 22
+  - 80
 
-# Đảm bảo cổng SSH có thể truy cập công khai
 portsAttributes:
   "22":
+    visibility: public
+  "80":
     visibility: public
